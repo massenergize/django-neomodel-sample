@@ -16,6 +16,8 @@ Including another URLconf
 from django.conf.urls import url
 from . import views
 
-urlpatterns = [
-    url(r'^$', views.index, name='index'),
-]
+urlpatterns = [url(attr, getattr(views, attr), name=attr)
+               for attr in dir(views) if attr.startswith('create')] \
+              + [url(r'^$', views.index, name='index'),
+                 ]
+

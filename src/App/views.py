@@ -1,24 +1,26 @@
 from django.shortcuts import render, redirect
-from App.models import *
+from App.models import Person, RealEstateUnit, Partner
 
 
 def index(request):
+    return render(request, 'index.html',
+                  {'persons': Person.nodes.all(),
+                   'units': RealEstateUnit.nodes.all(),
+                   'partners': Partner.nodes.all()})
+
+
+def create(request):
     # create nodes
-    test_user = User()
-    test_user.save()
+    satra = Person(nickname='satra').save()
+    rsl13 = RealEstateUnit(street="Rice Spring Ln",
+                           zipcode="01778",
+                           number="13", unittype="R").save()
+    rsl13.persons.connect(satra, {'relation': 'O'})
+    satra.units.connect(rsl13, {'relation': 'O'})
 
-    test_question = Question(title="Test Question")
-    test_question.save()
-
-    test_option1 = Option(title="Test Option 1")
-    test_option1.save()
-
-    test_option2 = Option(title="Test Option 2")
-    test_option2.save()
-
-    # create_relations
-    test_option1.question.connect(test_question)
-    test_option2.question.connect(test_question)
-    test_user.answers.connect(test_option2)
-
-    return render(request, 'index.html', {'users': User.nodes.all(), 'options': Option.nodes.all(), 'questions': Question.nodes.all()})
+    pearl_admin = Person(nickname='pearl').save()
+    pearl = Partner(legal_name="Pearl", legal_address="some place, state, zip",
+                    coverage_area="Wayland",
+                    mou_signed=True).save()
+    pearl.contacts.connect(pearl_admin)
+    return redirect('/')
