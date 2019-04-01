@@ -2,10 +2,23 @@ from datetime import datetime
 from neomodel import (StructuredNode, StructuredRel, StringProperty,
                       IntegerProperty, BooleanProperty, EmailProperty,
                       DateTimeProperty, DateProperty, UniqueIdProperty,
-                      RelationshipTo, RelationshipFrom,
+                      RelationshipTo, RelationshipFrom, Relationship,
                       ZeroOrMore, OneOrMore)
 
 from django_neomodel import DjangoNode
+
+
+class BaseNode(DjangoNode):
+    identifier = UniqueIdProperty()
+    name = StringProperty(required=True)
+    description = StringProperty()
+    alternateName = StringProperty()
+    image = StringProperty()
+    
+    sameAs = Relationship('App.models.BaseNode', 'SAME_AS')
+
+    class Meta:
+        app_label = 'App'
 
 
 class UnitRel(StructuredRel):
@@ -13,22 +26,17 @@ class UnitRel(StructuredRel):
     relation = StringProperty(choices=TYPES)
 
 
-class Person(DjangoNode):
-    uid = UniqueIdProperty()
+class Person(BaseNode):
     email = EmailProperty()
-    nickname = StringProperty()
     password = StringProperty()
     age_acknowledgment = BooleanProperty()
 
-    units = RelationshipTo('App.models.RealEstateUnit', 'HAS_UNIT', cardinality=ZeroOrMore,
+    units = RelationshipTo('App.models.RealEstateUnit', 'HAS_UNIT', 
                            model=UnitRel)
     goals = RelationshipTo('App.models.Goal', 'HAS_GOAL', cardinality=ZeroOrMore)
     teams = RelationshipTo('App.models.Team', 'IS_MEMBER', cardinality=ZeroOrMore)
     neighborhoods = RelationshipTo('App.models.Neighborhood', 'IN_NEIGHBORHOOD',
                                    cardinality=ZeroOrMore)
-
-    class Meta:
-        app_label = 'App'
 
 
 class PersonRel(StructuredRel):
@@ -36,8 +44,7 @@ class PersonRel(StructuredRel):
     relation = StringProperty(choices=TYPES)
 
 
-class RealEstateUnit(StructuredNode):
-    uid = UniqueIdProperty()
+class RealEstateUnit(BaseNode):
     street = StringProperty(required=True)
     zipcode = StringProperty(required=True)
     number = StringProperty()
@@ -48,33 +55,23 @@ class RealEstateUnit(StructuredNode):
                              model=PersonRel)
 
 
-class Team(StructuredNode):
-    uid = UniqueIdProperty()
-    name = StringProperty(required=True)
-    description = StringProperty()
-
+class Team(BaseNode):
     admins = RelationshipTo('App.models.Person', 'HAS_ADMIN', cardinality=ZeroOrMore)
     members = RelationshipTo('App.models.Person', 'HAS_MEMBER', cardinality=ZeroOrMore)
     goals = RelationshipTo('App.models.Goal', 'HAS_GOAL', cardinality=ZeroOrMore)
 
 
-class Goal(StructuredNode):
-    uid = UniqueIdProperty()
-    description = StringProperty()
+class Goal(BaseNode):
+    pass
 
 
-class Neighborhood(StructuredNode):
-    uid = UniqueIdProperty()
-    name = StringProperty(required=True)
-
+class Neighborhood(BaseNode):
     admins = RelationshipTo('App.models.Person', 'HAS_ADMIN', cardinality=ZeroOrMore)
     members = RelationshipTo('App.models.Person', 'HAS_MEMBER', cardinality=ZeroOrMore)
     goals = RelationshipTo('App.models.Goal', 'HAS_GOAL', cardinality=ZeroOrMore)
 
 
-class Partner(StructuredNode):
-    uid = UniqueIdProperty()
-    legal_name = StringProperty(required=True)
+class Partner(BaseNode):
     legal_address = StringProperty(required=True)
     coverage_area = StringProperty(required=True)
     mou_signed = BooleanProperty(default=False)
@@ -95,8 +92,7 @@ class PersonActionRel(StructuredRel):
     action_info = StringProperty()
 
 
-class Action(StructuredNode):
-    uid = UniqueIdProperty()
+class Action(BaseNode):
     startdate = DateTimeProperty()
     enddate = DateTimeProperty()
 
@@ -107,14 +103,12 @@ class Action(StructuredNode):
                              model=PersonActionRel)
 
 
-class Tag(StructuredNode):
-    uid = UniqueIdProperty()
-    name = StringProperty(required=True)
+class Tag(BaseNode):
+    pass
 
 
-class SuperGroup(StructuredNode):
-    uid = UniqueIdProperty()
-    name = StringProperty(required=True)
+class SuperGroup(BaseNode):
+    pass
     # includes Tags
     # excludes Tags
 
@@ -124,54 +118,41 @@ class ActionRel(StructuredRel):
     reminder = BooleanProperty()
 
 
-class Plans(StructuredNode):
-    uid = UniqueIdProperty()
-
+class Plans(BaseNode):
     actions = RelationshipTo('App.models.Action', 'HAS_TODO', cardinality=OneOrMore,
                              model=ActionRel)
 
 
-class Items(StructuredNode):
-    uid = UniqueIdProperty()
-    description = StringProperty()
+class Items(BaseNode):
     TYPES = {'S': 'Story', 'N': 'News', 'R': 'Request', 'Q': 'Question',
              'C': 'Comment'}
     itemtype = StringProperty(choices=TYPES)
 
 
-class Event(StructuredNode):
-    uid = UniqueIdProperty()
-    description = StringProperty()
-    url = StringProperty()
-
+class Event(BaseNode):
     startdate = DateTimeProperty()
     enddate = DateTimeProperty()
 
     partners = RelationshipTo('App.models.Partner', 'HAS_PARTNER', cardinality=ZeroOrMore)
 
 
-class Permission(StructuredNode):
-    uid = UniqueIdProperty()
-    description = StringProperty()
+class Permission(BaseNode):
     TYPES = {'C': 'Create', 'V': 'View', 'A': 'Approve', 'E': 'Edit',
              'F': 'Fork'}
     permtype = StringProperty(choices=TYPES)
 
 
-class Role(StructuredNode):
-    uid = UniqueIdProperty()
-    description = StringProperty()
+class Role(BaseNode):
     TYPES = {'S': 'SuperAdmin', 'N': 'Neighborhood Admin', 'T': 'Team Admin',
              'R': 'Unit Admin', 'P': 'Partner Admin'}
     roletype = StringProperty(choices=TYPES)
 
 
-class Policy(StructuredNode):
-    uid = UniqueIdProperty()
+class Policy(BaseNode):
     who = Role()
     cando = Permission()
     withwhat = set()
 
 
-class Notification(StructuredNode):
-    uid = UniqueIdProperty()
+class Notification(BaseNode):
+    pass

@@ -1,7 +1,8 @@
 from django.shortcuts import render, redirect
-from App.models import Person, RealEstateUnit, Partner
+from .models import Person, RealEstateUnit, Partner
 
-from App.forms import PersonForm
+from .forms import PersonForm
+
 
 def index(request):
     return render(request, 'index.html',
