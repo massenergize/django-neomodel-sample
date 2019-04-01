@@ -19,5 +19,6 @@ from . import views
 urlpatterns = [url(attr, getattr(views, attr), name=attr)
                for attr in dir(views) if attr.startswith('create')] \
               + [url(r'^$', views.index, name='index'),
+                 url('person/new/', views.person_new, name='person_new'),
                  ]
 

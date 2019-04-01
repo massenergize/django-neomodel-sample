@@ -1,0 +1,7 @@
+<form method="POST" action="/submit">
+{% for field in structure.fields  %}
+   {{field.name}}: <input type="{{ field.type }}" name="{{ field.name }}"
+  {% if field.required %} required {% endif %}><br>
+{% endfor %}
+   <input type="submit" value="Submit">
+</form>

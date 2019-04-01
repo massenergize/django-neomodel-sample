@@ -5,12 +5,15 @@ from neomodel import (StructuredNode, StructuredRel, StringProperty,
                       RelationshipTo, RelationshipFrom,
                       ZeroOrMore, OneOrMore)
 
+from django_neomodel import DjangoNode
+
+
 class UnitRel(StructuredRel):
     TYPES = {'O': 'Owns', 'M': 'Manages', 'R': 'Rents'}
     relation = StringProperty(choices=TYPES)
 
 
-class Person(StructuredNode):
+class Person(DjangoNode):
     uid = UniqueIdProperty()
     email = EmailProperty()
     nickname = StringProperty()
@@ -23,6 +26,9 @@ class Person(StructuredNode):
     teams = RelationshipTo('App.models.Team', 'IS_MEMBER', cardinality=ZeroOrMore)
     neighborhoods = RelationshipTo('App.models.Neighborhood', 'IN_NEIGHBORHOOD',
                                    cardinality=ZeroOrMore)
+
+    class Meta:
+        app_label = 'App'
 
 
 class PersonRel(StructuredRel):

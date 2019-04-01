@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from App.models import Person, RealEstateUnit, Partner
 
+from App.forms import PersonForm
 
 def index(request):
     return render(request, 'index.html',
@@ -24,3 +25,16 @@ def create(request):
                     mou_signed=True).save()
     pearl.contacts.connect(pearl_admin)
     return redirect('/')
+
+
+def person_new(request):
+    if request.method == "POST":
+        print(request.POST)
+        form = PersonForm(request.POST)
+        if form.is_valid():
+            person = form.save(commit=False)
+            person.save()
+            return redirect('/')
+    else:
+        form = PersonForm()
+    return render(request, 'person_edit.html', {'form': form})
